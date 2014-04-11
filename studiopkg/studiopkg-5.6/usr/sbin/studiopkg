@@ -306,7 +306,7 @@ new_packages()
         fi
     done
 
-    [[ -z "$(cat $QUEUE)" ]] && { echo "No new packages."; cleanup; }
+    [[ -z "$(cat $QUEUE)" ]] && { echo "No new packages."; unset LOG; cleanup; }
     
     TITLE="Choose new packages to install"
     list_pkgs
