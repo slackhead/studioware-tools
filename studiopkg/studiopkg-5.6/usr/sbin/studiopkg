@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b11"
+    VERSION="5.6b12"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -306,7 +306,12 @@ new_packages()
         fi
     done
 
-    [[ -z "$(cat $QUEUE)" ]] && { echo "No new packages."; unset LOG; cleanup; }
+    if [ -z "$(cat $QUEUE)" ]; then
+        echo "No new packages."
+        unset LOG
+        rm -r $LOGFILE
+        cleanup;
+    fi
     
     TITLE="Choose new packages to install"
     list_pkgs
