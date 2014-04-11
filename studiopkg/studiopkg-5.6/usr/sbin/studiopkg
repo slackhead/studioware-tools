@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b9"
+    VERSION="5.6b11"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -149,7 +149,8 @@ getflags()
 #{{{ Usage
 usage()
 {
-cat << EOF
+    unset LOG
+    cat << EOF
 $APPNAME <command> [arguments]
 
 $APPNAME --clean-system                    remove all studioware packages dialog
@@ -188,6 +189,7 @@ EOF
 latest()
 {
     cd $TMPROOT
+    unset LOG
   
     LATEST=$(curl -s $TOOLURL/LATEST)
     REMVERS=$(echo $LATEST | cut -db -f1)
@@ -258,6 +260,7 @@ latest()
 #{{{ Update
 update()
 { 
+    unset LOG
     cd $CACHEDIR || cleanup
     $WGET -O FILELIST.TXT $PKGSERVER/FILELIST.TXT 
     $WGET -O CHECKSUMS.md5 $PKGSERVER/CHECKSUMS.md5 
@@ -539,7 +542,8 @@ list_pkgs()
     if [ -n "$MISSING" ]; then
         echo "The following are in the queue, but not in the server file list:"
         echo $MISSING
-        cleanup
+        sleep 3
+        #cleanup
     fi
 
     [[ -z "$TITLE" ]] && TITLE="Choose packages to install:"
@@ -862,6 +866,7 @@ import_gpg()
 #{{{ Search
 search()
 {
+    unset LOG
     cd $CACHEDIR || { echo "No cache exists! Did you run update?"; cleanup; }
     if [ ! -r $FILELIST ]; then { echo "No filelist! Did you run update?"; \
         cleanup; } fi
@@ -885,6 +890,7 @@ search()
 #{{{ Delete Cache
 delete_cache()
 {
+    unset LOG
     cd $CACHEDIR || cleanup
     find . -name "*txz" -exec rm -f {} \;
     find . -name "*md5" -exec rm -f {} \;
