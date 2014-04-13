@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b14"
+    VERSION="5.6b15"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -39,7 +39,7 @@ init()
     TMPQ=$TMPROOT/tmp-queue
     PKGLIST=$TMPROOT/pkglist
     CWD=$(pwd)
-    LOGFILE=$CWD/$APPNAME.log
+    LOGFILE=/tmp/$APPNAME.log
     rm -f $LOGFILE
     WGET="wget --no-check-certificate"
     INSTALL="upgradepkg --reinstall --install-new"
@@ -76,7 +76,7 @@ init()
 cleanup()
 {
     rm -rf $TMPROOT
-    
+
     if [ -n "$LOG" ]; then
         echo "========================================================" >> $LOGFILE
         cat $LOGFILE
@@ -130,7 +130,7 @@ getflags()
     contains "$CMD" --gpg             && { import_gpg; cleanup; }
     contains "$CMD" --queue           && { get_queue $ARG; cleanup; }
     contains "$CMD" --help            && { usage; cleanup; }
-    contains "$CMD" --version         && { echo $APPNAME $VERSION; cleanup; }
+    contains "$CMD" --version         && { echo $APPNAME $VERSION;unset LOG;cleanup; }
     contains "$CMD" -g && { import_gpg; cleanup; }
     contains "$CMD" -s && { search $ARG; cleanup; }
     contains "$CMD" -u && { update; cleanup; }
@@ -139,8 +139,9 @@ getflags()
     contains "$CMD" -l && { latest; cleanup; }
     contains "$CMD" -q && { get_queue $ARG; cleanup; }
     contains "$CMD" -h && { usage; cleanup; }
-    contains "$CMD" -v && { echo $APPNAME $VERSION; cleanup; }
+    contains "$CMD" -v && { echo $APPNAME $VERSION;unset LOG; cleanup; }
 
+    unset LOG
     usage
     echo
     echo "Unknown command: $CMD"

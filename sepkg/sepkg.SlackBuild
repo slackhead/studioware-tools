@@ -23,7 +23,7 @@
 
 PRGNAM=sepkg
 VERSION=${VERSION:-4.2}
-BUILD=${BUILD:-7}
+BUILD=${BUILD:-8}
 TAG=${TAG:-daw}
 ARCH=noarch
 set -e

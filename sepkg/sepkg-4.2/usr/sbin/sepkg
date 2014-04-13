@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.2b7"
+    MYVERSION="4.2b8"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -40,7 +40,7 @@ init()
     QUEUE=$TMPROOT/queue
     TMPQ=$TMPROOT/tmp-queue
     PKGLIST=$TMPROOT/pkglist
-    LOGFILE=$CWD/$APPNAME.log
+    LOGFILE=/tmp/$APPNAME.log
     WGET="wget --progress=dot:mega --no-check-certificate"
     UP="upgradepkg --reinstall --install-new"
     MAINURL="http://www.studioware.org"
@@ -387,11 +387,13 @@ make_queue()
                                 $WGET -O $SUB.sqf $SBSERVER/$CAT/$SUB.sqf
                             else
                                 echo "$SUB.sqf not found."
-                                cleanup
+                                echo "Will try application directly."
+                                line=${line/@//}
                             fi
                             if [ $? != 0 ]; then
                                 echo "$SUB.sqf not found."
-                                cleanup
+                                echo "Will try application directly."
+                                line=${line/@//}
                             fi
                         else
                             if [ -r $CWD/$SUB.sqf ]; then
