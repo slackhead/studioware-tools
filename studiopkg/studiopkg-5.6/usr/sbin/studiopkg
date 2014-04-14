@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b15"
+    VERSION="5.6b16"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -432,14 +432,25 @@ do_dialog()
 {
     [[ -z "$LIST" ]] && { echo "Package list is empty."; cleanup; }
 
+    echo -n "" > $TMPQ
+
     for PKG in $PKGS
     do
+        echo $PKG >> $TMPQ
         PRGNAM=$(echo $PKG | grep txz | rev | cut -d- -f4- | rev)
         ARCH=$(echo $PKG | grep txz | rev | cut -d- -f2 | rev)
         EXISTING=$(find /var/log/packages/ -name $PRGNAM\-\*\-$ARCH\-\*[^se])
         [[ -n "$EXISTING" ]] && EXISTS=$EXISTS" "$(basename $EXISTING)
     done
-        
+    
+    # Reverse the order
+    unset PKGS
+
+    for P in $(tac $TMPQ)
+    do
+        PKGS=$PKGS$P" "
+    done
+
     if [ -n "$EXISTS" ]; then
         echo "WARNING! You have the following package(s) already installed:"
         echo 
@@ -455,7 +466,7 @@ do_dialog()
     if [ -n "$LOG" ]; then
         echo "Package list:">> $LOGFILE
         for P in $PKGS; do echo $P >> $LOGFILE; done
-    
+
         if [ -n "$EXISTS" ]; then
             echo "========================================================" >> $LOGFILE
             echo "WARNING! You have the following package(s) already installed:" >> $LOGFILE
@@ -508,7 +519,6 @@ do_dialog()
             CHOICE=0
         fi
     fi
-    
 }
 #}}}
 #{{{ List Packages
