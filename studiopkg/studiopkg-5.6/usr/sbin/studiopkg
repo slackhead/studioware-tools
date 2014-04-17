@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b17"
+    VERSION="5.6b18"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -345,9 +345,10 @@ get_queue()
 
         *)
             CAT=$(grep -i /$1.tar.gz$ $SLACKBUILDS | cut -d/ -f2-4)
+            APP=$(echo $CAT | cut -d/ -f3)
 
             if [ -n "$CAT" ]; then
-                curl -fs $SBSERVER/$CAT/$1.sqf > $QUEUE
+                curl -fs $SBSERVER/$CAT/$APP.sqf > $QUEUE
 
                 if [ $? != 0 ]; then
                     echo "Queue $1.sqf not found."
