@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b19"
+    VERSION="5.6b20"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -310,7 +310,7 @@ new_packages()
     if [ -z "$(cat $QUEUE)" ]; then
         echo "No new packages."
         unset LOG
-        rm -r $LOGFILE
+        rm -rf $LOGFILE
         cleanup;
     fi
     
