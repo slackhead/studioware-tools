@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b18"
+    VERSION="5.6b19"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -305,16 +305,6 @@ new_packages()
         | cut -d- -f4- | rev | while read PKG
     do
         [[ -z "$(grep ^$PKG$ $TMPQ)" ]] && echo $PKG >> $QUEUE
-    done
-
-    for PKG in $(grep txz$ $FILELIST | cut -d/ -f4)
-    do
-        PRGNAM=$(echo $PKG | rev | cut -d- -f4- | rev)
-        BASE=$(basename $PKG | rev | cut -d. -f2- | rev)
-
-        if [[ ! -r /var/log/packages/$BASE ]]; then
-            echo $PRGNAM >> $QUEUE
-        fi
     done
 
     if [ -z "$(cat $QUEUE)" ]; then
@@ -747,7 +737,12 @@ upgrade_all()
         fi
     done
 
-    if [ -z "$LIST" ]; then { echo "No packages to upgrade"; cleanup; } fi
+    if [ -z "$LIST" ]; then 
+        echo "No packages to upgrade"
+        unset LOG
+        unset LOGFILE
+        cleanup
+    fi
 
     TITLE="Choose packages to upgrade:"
     do_dialog
