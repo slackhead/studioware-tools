@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.3b1"
+    MYVERSION="4.3b2"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -157,6 +157,7 @@ new()
 
     cd $TMPROOT || cleanup
     echo -n > $QUEUE
+    echo "Looking for new packages..."
 
     while read LINE
     do
@@ -164,7 +165,8 @@ new()
         VERSION=$(echo $LINE | awk '{print $2}')
         BUILD=$(echo $LINE | awk '{print $3}')
 
-        if [ ! -r /var/log/packages-$PRGNAM-$VERSION-*-${BUILD}se ]; then
+        if [ ! $(ls /var/log/packages/$PRGNAM-* 2>/dev/null \
+            | grep /$PRGNAM-[^-]*-[^-]*-[^-]*se$) ]; then
             echo $PRGNAM >> $QUEUE
         fi
     done < $VERSIONLIST
@@ -188,15 +190,16 @@ upgrade_all()
 
     cd $TMPROOT || cleanup
     echo -n > $QUEUE
+    echo "Looking for packages to upgrade..."
 
     ls /var/log/packages/*se | cut -d/ -f5 | while read PKG
     do
         PRGNAM=$(echo $PKG | rev | cut -d- -f4- | rev)
         VERSION=$(echo $PKG | rev | cut -d- -f3 | rev)
         BUILD=$(echo $PKG | rev | cut -d- -f1 | rev | sed 's/se//')
-        SERVER_VERSION=$(grep -iw $PRGNAM $VERSIONLIST | \
+        SERVER_VERSION=$(grep -i ^$PRGNAM[[:space:]] $VERSIONLIST | \
             awk '{print $2}')
-        SERVER_BUILD=$(grep -iw $PRGNAM $VERSIONLIST | \
+        SERVER_BUILD=$(grep -i ^$PRGNAM[[:space:]] $VERSIONLIST | \
             awk '{print $3}')
 
         if [ "$VERSION$BUILD" != "$SERVER_VERSION$SERVER_BUILD" ]; then
