@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.3b2"
+    MYVERSION="4.3b3"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -254,7 +254,7 @@ readme()
 #{{{ Latest
 latest()
 {
-    cd $TMPROOT
+    cd /tmp
     
     LATEST=$(curl -s $TOOLURL/LATEST)
     REMVERS=$(echo $LATEST | cut -db -f1)
@@ -275,7 +275,7 @@ latest()
                 $WGET -q -O $MD5 $TOOLURL/$MD5
                 $WGET -q -O $ASC $TOOLURL/$ASC
 
-                echo "Package saved to $TMPROOT"
+                echo "Package saved to /tmp"
                 echo "Checking md5... "
 
                 md5sum -c $MD5
