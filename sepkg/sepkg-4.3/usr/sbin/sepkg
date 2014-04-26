@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.2b9"
+    MYVERSION="4.3b1"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -49,6 +49,7 @@ init()
     CACHEDIR=/var/cache/$APPNAME/$SWVERSION
     mkdir -p $CACHEDIR
     FILELIST=$CACHEDIR/SLACKBUILDS.TXT
+    VERSIONLIST=$CACHEDIR/VERSIONINFO.TXT
     ERR="0"
     STUDIOKEY="Studioware <info@studioware.org>"
     GPG="gpg --verify"
@@ -119,6 +120,8 @@ getflags()
     contains "$CMD" --search        && { search $ARG; cleanup; }
     contains "$CMD" --build         && { INSTALL=0; set_queue "$ARG"; cleanup; }
     contains "$CMD" --install       && { INSTALL=1; set_queue "$ARG"; cleanup; }
+    contains "$CMD" --upgrade-all   && { INSTALL=1; upgrade_all; cleanup; }
+    contains "$CMD" --new           && { INSTALL=1; new; cleanup; }
     contains "$CMD" --delete-cache  && { deletecache; cleanup; }
     contains "$CMD" --latest        && { latest; cleanup; }
     contains "$CMD" --read          && { readme $ARG; cleanup; }
@@ -141,6 +144,72 @@ getflags()
     usage
     echo
     echo "Unknown command: $CMD"
+    cleanup
+}
+#}}}
+#{{{ New
+new()
+{
+    cd $CACHEDIR || { echo "No cache exists. Did you run --update?"; cleanup; }
+
+    if [ ! -r $FILELIST ]; then { echo "No filelist. Did you run --update?"; \
+        cleanup; } fi
+
+    cd $TMPROOT || cleanup
+    echo -n > $QUEUE
+
+    while read LINE
+    do
+        PRGNAM=$(echo $LINE | awk '{print $1}')
+        VERSION=$(echo $LINE | awk '{print $2}')
+        BUILD=$(echo $LINE | awk '{print $3}')
+
+        if [ ! -r /var/log/packages-$PRGNAM-$VERSION-*-${BUILD}se ]; then
+            echo $PRGNAM >> $QUEUE
+        fi
+    done < $VERSIONLIST
+
+    if [ -z "$(cat $QUEUE)" ]; then
+        echo "No new packages."
+        cleanup
+    fi
+
+    listpkgs
+    cleanup
+}
+#}}}
+#{{{ Upgrade All
+upgrade_all()
+{
+    cd $CACHEDIR || { echo "No cache exists. Did you run --update?"; cleanup; }
+
+    if [ ! -r $FILELIST ]; then { echo "No filelist. Did you run --update?"; \
+        cleanup; } fi
+
+    cd $TMPROOT || cleanup
+    echo -n > $QUEUE
+
+    ls /var/log/packages/*se | cut -d/ -f5 | while read PKG
+    do
+        PRGNAM=$(echo $PKG | rev | cut -d- -f4- | rev)
+        VERSION=$(echo $PKG | rev | cut -d- -f3 | rev)
+        BUILD=$(echo $PKG | rev | cut -d- -f1 | rev | sed 's/se//')
+        SERVER_VERSION=$(grep -iw $PRGNAM $VERSIONLIST | \
+            awk '{print $2}')
+        SERVER_BUILD=$(grep -iw $PRGNAM $VERSIONLIST | \
+            awk '{print $3}')
+
+        if [ "$VERSION$BUILD" != "$SERVER_VERSION$SERVER_BUILD" ]; then
+            echo $PRGNAM >> $QUEUE
+        fi
+    done
+
+    if [ -z "$(cat $QUEUE)" ]; then
+        echo "No packages to upgrade."
+        cleanup
+    fi
+
+    listpkgs
     cleanup
 }
 #}}}
@@ -261,6 +330,8 @@ $APPNAME --build, -b package1, package2 ...     build packages
 $APPNAME --delete-cache                         delete all cached files
 $APPNAME --install, -i package1, package2 ...   build & install packages
 $APPNAME --install, -i < <queuefile>            install packages from file
+$APPNAME --new                                  checks for new packages
+$APPNAME --upgrade-all                          checks for updates to all packages
 $APPNAME --latest, -l                           checks for newer version of $APPNAME
 $APPNAME --read, -r <package>                   download and print readme (needs lynx)
 $APPNAME --search, -s <name>                    search for package name or part name
@@ -288,15 +359,16 @@ update()
 {   
     cd $CACHEDIR || cleanup
     $WGET -O SLACKBUILDS.TXT $SBSERVER/SLACKBUILDS.TXT 
+    $WGET -O VERSIONINFO.TXT $SBSERVER/VERSIONINFO.TXT 
     cleanup
 }
 #}}}
 #{{{ Get Queue
 get_queue()
 {
-    cd $CACHEDIR || { echo "No cache exists! Did you run update?"; cleanup; }
+    cd $CACHEDIR || { echo "No cache exists. Did you run --update?"; cleanup; }
 
-    if [ ! -r $FILELIST ]; then { echo "No filelist! Did you run update?"; \
+    if [ ! -r $FILELIST ]; then { echo "No filelist. Did you run --update?"; \
         cleanup; } fi
 
     cd $TMPROOT || cleanup
@@ -333,8 +405,8 @@ get_queue()
 #{{{ Set Queue
 set_queue()
 {
-    cd $CACHEDIR || { echo "No cache exists! Did you run update?"; cleanup; }
-    if [ ! -r $FILELIST ]; then { echo "No filelist! Did you run update?"; \
+    cd $CACHEDIR || { echo "No cache exists. Did you run --update?"; cleanup; }
+    if [ ! -r $FILELIST ]; then { echo "No filelist. Did you run --update?"; \
         cleanup; } fi
 
     cd $TMPROOT || cleanup
