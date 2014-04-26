@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.2b8"
+    MYVERSION="4.2b9"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -488,7 +488,7 @@ listpkgs()
 
     while read line
     do
-        if [ ! $(grep -x $line $TMPQ) ]; then
+        if [ ! $(grep -xi $line $TMPQ) ]; then
             echo $line >> $TMPQ
         fi
     done < $QUEUE
@@ -498,7 +498,7 @@ listpkgs()
     while read line
     do
         name=$(echo $line | awk '{print $1}')
-        pkg=$(grep /$name.tar.gz $FILELIST | cut -d'/' -f5)
+        pkg=$(grep -i /$name.tar.gz $FILELIST | cut -d'/' -f5)
 
         if [ -n "$pkg" ]; then
             PKGS=$PKGS" "$pkg
