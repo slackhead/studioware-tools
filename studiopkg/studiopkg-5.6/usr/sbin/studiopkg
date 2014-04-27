@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b20"
+    VERSION="5.6b21"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -45,6 +45,7 @@ init()
     INSTALL="upgradepkg --reinstall --install-new"
     CONFDIR=/etc/$APPNAME/
     mkdir -p $CONFDIR
+    MAINURL="http://www.studioware.org"
     CONF=$CONFDIR$APPNAME.conf
     touch $CONF
     source $CONF
@@ -56,10 +57,8 @@ init()
         echo -n "Press enter to continue"
         read <&1
     fi
-    MAINURL="http://www.studioware.org"
     TOOLURL="$MAINURL/files/tools/$APPNAME"
-    PKGSERVER="$MAINURL/files/packages/slackware$ARCH-$SWVERSION"
-    [[ -n "$TESTREPO" ]] && SWVERSION="$TESTREPO"
+    PKGSERVER="$MAINURL/files/packages/slackware$ARCH-$PKGVERSION"
     SBSERVER="$MAINURL/files/slackbuilds/$SWVERSION"
     CACHEDIR=/var/cache/$APPNAME/$SWVERSION
     mkdir -p $CACHEDIR
@@ -190,7 +189,7 @@ EOF
 #{{{ latest
 latest()
 {
-    cd $TMPROOT
+    cd /tmp
     unset LOG
   
     LATEST=$(curl -s $TOOLURL/LATEST)
@@ -212,7 +211,7 @@ latest()
                 $WGET -q -O $MD5 $TOOLURL/$MD5
                 $WGET -q -O $ASC $TOOLURL/$ASC
 
-                echo "Package saved to $TMPROOT"
+                echo "Package saved to /tmp"
                 echo "Checking md5... "
 
                 md5sum -c $MD5

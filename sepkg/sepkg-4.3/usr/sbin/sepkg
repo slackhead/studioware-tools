@@ -26,10 +26,11 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.3b3"
+    MYVERSION="4.3b4"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
+    MAINURL="http://www.studioware.org"
     CONF=$CONFDIR/$APPNAME.conf
     touch $CONF
     source $CONF 
@@ -43,7 +44,6 @@ init()
     LOGFILE=/tmp/$APPNAME.log
     WGET="wget --progress=dot:mega --no-check-certificate"
     UP="upgradepkg --reinstall --install-new"
-    MAINURL="http://www.studioware.org"
     TOOLURL="$MAINURL/files/tools/$APPNAME"
     SBSERVER="$MAINURL/files/slackbuilds/$SWVERSION"
     CACHEDIR=/var/cache/$APPNAME/$SWVERSION
@@ -254,9 +254,10 @@ readme()
 #{{{ Latest
 latest()
 {
-    cd /tmp
+    cd $TMPROOT
     
-    LATEST=$(curl -s $TOOLURL/LATEST)
+    wget -q $TOOLURL/LATEST || cleanup
+    LATEST=$(cat LATEST)
     REMVERS=$(echo $LATEST | cut -db -f1)
     REMBUILD=$(echo $LATEST | cut -db -f2)
 
@@ -271,11 +272,11 @@ latest()
                 PKG=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.txz
                 ASC=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.txz.asc
                 MD5=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.md5
-                $WGET -q -O $PKG $TOOLURL/$PKG
-                $WGET -q -O $MD5 $TOOLURL/$MD5
-                $WGET -q -O $ASC $TOOLURL/$ASC
+                $WGET -q -O $PKG $TOOLURL/$PKG || cleanup
+                $WGET -q -O $MD5 $TOOLURL/$MD5 || cleanup
+                $WGET -q -O $ASC $TOOLURL/$ASC || cleanup
 
-                echo "Package saved to /tmp"
+                echo "Package saved to $TMPROOT"
                 echo "Checking md5... "
 
                 md5sum -c $MD5
@@ -463,12 +464,14 @@ make_queue()
                             else
                                 echo "$SUB.sqf not found."
                                 echo "Will try application directly."
-                                line=${line/@//}
+                                line=${line/@/}
+                                echo $line >> $TMPQ
                             fi
                             if [ $? != 0 ]; then
                                 echo "$SUB.sqf not found."
                                 echo "Will try application directly."
-                                line=${line/@//}
+                                line=${line/@/}
+                                echo $line >> $TMPQ
                             fi
                         else
                             if [ -r $CWD/$SUB.sqf ]; then
@@ -582,7 +585,7 @@ listpkgs()
         fi
     done < $QUEUE
 
-    if [ -z "$PKGS" ]; then
+    if [ -n "$MISSING" ]; then
         echo "The following applications could not be found:"
         echo "$MISSING"
         cleanup
