@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b21"
+    VERSION="5.6b22"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -58,7 +58,7 @@ init()
         read <&1
     fi
     TOOLURL="$MAINURL/files/tools/$APPNAME"
-    PKGSERVER="$MAINURL/files/packages/slackware$ARCH-$PKGVERSION"
+    PKGSERVER="$MAINURL/files/packages/slackware$ARCH-$SWVERSION"
     SBSERVER="$MAINURL/files/slackbuilds/$SWVERSION"
     CACHEDIR=/var/cache/$APPNAME/$SWVERSION
     mkdir -p $CACHEDIR
