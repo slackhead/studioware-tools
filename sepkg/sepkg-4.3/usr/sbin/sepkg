@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.3b4"
+    MYVERSION="4.3b5"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -462,10 +462,11 @@ make_queue()
                             if [ -n "$CAT" ]; then
                                 $WGET -O $SUB.sqf $SBSERVER/$CAT/$SUB.sqf
                             else
-                                echo "$SUB.sqf not found."
-                                echo "Will try application directly."
-                                line=${line/@/}
-                                echo $line >> $TMPQ
+                                $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf 
+                                if [ $? != 0 ]; then
+                                    echo "$SUB.sqf not found."
+                                    cleanup
+                                fi
                             fi
                             if [ $? != 0 ]; then
                                 echo "$SUB.sqf not found."
