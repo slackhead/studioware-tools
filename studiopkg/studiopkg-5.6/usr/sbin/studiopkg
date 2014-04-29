@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b22"
+    VERSION="5.6b23"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -417,7 +417,7 @@ make_queue()
     done < $1
 }
 #}}}
-#{{{ Do Dialog
+#{{ Do Dialog
 do_dialog()
 {
     [[ -z "$LIST" ]] && { echo "Package list is empty."; cleanup; }
@@ -455,7 +455,10 @@ do_dialog()
 
     if [ -n "$LOG" ]; then
         echo "Package list:">> $LOGFILE
-        for P in $PKGS; do echo $P >> $LOGFILE; done
+        for P in $PKGS
+        do 
+            echo $P >> $LOGFILE
+        done
 
         if [ -n "$EXISTS" ]; then
             echo "========================================================" >> $LOGFILE
@@ -695,7 +698,7 @@ upgrade()
       
         if [ "$iversion" != "$nversion" ] && [ -n "$package" ]; then
             LIST=$LIST" "$package" "$shortname" ""on "
-            PKGS="package $PKGS"
+            PKGS="$package $PKGS"
         fi
     done
 
