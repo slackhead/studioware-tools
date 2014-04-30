@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b23"
+    VERSION="5.6b25"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -328,7 +328,7 @@ get_queue()
     cd $TMPROOT || cleanup
 
     case "$1" in
-        'audio'|'video'|'photo'|'full')
+        'audio'|'video'|'photo'|'full'|'system')
             curl -fs $SBSERVER/queues/$1.sqf > $QUEUE
             ;;
 
@@ -390,7 +390,7 @@ make_queue()
                         $WGET -O $SUB.sqf $SBSERVER/$CAT/$SUB.sqf 
                     else
                         case $SUB in
-                            'full'|'audio'|'video'|'photo')
+                            'full'|'audio'|'video'|'photo'|'system')
                                 $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf 
                                 ;;
                             *) 
@@ -417,7 +417,7 @@ make_queue()
     done < $1
 }
 #}}}
-#{{ Do Dialog
+#{{{ Do Dialog
 do_dialog()
 {
     [[ -z "$LIST" ]] && { echo "Package list is empty."; cleanup; }
