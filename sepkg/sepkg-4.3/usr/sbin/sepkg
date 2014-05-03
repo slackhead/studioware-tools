@@ -42,7 +42,7 @@ init()
     TMPQ=$TMPROOT/tmp-queue
     PKGLIST=$TMPROOT/pkglist
     LOGFILE=/tmp/$APPNAME.log
-    SUMMARY=/tmp/$APPNAME.summary
+    SUMMARY=$TMPROOT/$APPNAME.summary
     SUMDIV="============================="
     WGET="wget --progress=dot:mega --no-check-certificate"
     UP="upgradepkg --reinstall --install-new"
@@ -70,7 +70,9 @@ init()
 #{{{ Cleanup and exit
 cleanup()
 {
-    cat $SUMMARY
+    if [ -r $SUMMARY ]; then
+        cat $SUMMARY
+    fi
     rm -rf $TMPROOT
     [[ -n "$LOGPID" ]] && kill $LOGPID
     exit 0
@@ -79,7 +81,10 @@ cleanup()
 #{{{ Cleanup and exit 1
 cleanupbad()
 {
-    cat $SUMMARY
+    if [ -r $SUMMARY ]; then
+        cat $SUMMARY
+    fi
+
     rm -rf $TMPROOT
     [[ -n "$LOGPID" ]] && kill $LOGPID
     exit 1
@@ -672,7 +677,7 @@ installpkgs()
             (
             cd $b
             source ./$b.info        
-            unset loop
+            let loop=0
             MD5SUM=($MD5SUM)
 
             for D in $DOWNLOAD
