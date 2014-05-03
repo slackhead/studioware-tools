@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.3b5"
+    MYVERSION="4.3b6"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -42,6 +42,8 @@ init()
     TMPQ=$TMPROOT/tmp-queue
     PKGLIST=$TMPROOT/pkglist
     LOGFILE=/tmp/$APPNAME.log
+    SUMMARY=/tmp/$APPNAME.summary
+    SUMDIV="============================="
     WGET="wget --progress=dot:mega --no-check-certificate"
     UP="upgradepkg --reinstall --install-new"
     TOOLURL="$MAINURL/files/tools/$APPNAME"
@@ -68,6 +70,7 @@ init()
 #{{{ Cleanup and exit
 cleanup()
 {
+    cat $SUMMARY
     rm -rf $TMPROOT
     [[ -n "$LOGPID" ]] && kill $LOGPID
     exit 0
@@ -76,6 +79,7 @@ cleanup()
 #{{{ Cleanup and exit 1
 cleanupbad()
 {
+    cat $SUMMARY
     rm -rf $TMPROOT
     [[ -n "$LOGPID" ]] && kill $LOGPID
     exit 1
@@ -646,6 +650,12 @@ installpkgs()
 {
     cd $TMPROOT || cleanup
     unset pkgs
+    echo $SUMDIV > $SUMMARY
+    echo "Starting package list" >> $SUMMARY
+    if [ -n "$LOG" ]; then
+        echo "Logging to $LOGFILE" >> $SUMMARY
+    fi
+    echo $SUMDIV >> $SUMMARY
 
     for i in $(cat $PKGLIST)
     do
@@ -656,6 +666,7 @@ installpkgs()
     do
         if [ -n "$i" ]; then
             b=$(basename $i .tar.gz)
+            echo "Starting $b" >> $SUMMARY
             $WGET -c -O $b.tar.gz $SBSERVER/$i 
             tar xf $b.tar.gz
             (
@@ -681,6 +692,7 @@ installpkgs()
                     if [ "$(md5sum $LOCAL | awk '{print $1}')" != "$MD5" ]; then 
                         echo "Checksums don't match."
                         echo -n "(A)bort (C)ontinue (R)edownload "
+                        echo "Bad MD5" >> $SUMMARY
                         read ANS
                         if [[ "$ANS" = [rR] ]]; then 
                             rm -r $CACHEDIR/$LOCAL
@@ -688,15 +700,17 @@ installpkgs()
                             break
                         else exit 1
                         fi
-                    else MD5MATCH=1
+                    else 
+                        MD5MATCH=1
+                        echo "Good MD5" >> $SUMMARY
                     fi
                 done
                 let loop=$loop+1
             done
 
             options=$(grep -x $b $QUEUE | cut -f2- | sed "s/$b//")
-            echo -n "Starting $b SlackBuild" | $LOG
-            [[ -n "$options" ]] && echo " with options:" | $LOG
+            echo -n "Starting $b SlackBuild " | $LOG
+            [[ -n "$options" ]] && echo "with options:" | $LOG
             [[ -n "$options" ]] && echo -n "$options" | $LOG
             
             echo | $LOG
@@ -705,35 +719,64 @@ installpkgs()
             if [ -n "$LOG" ]; then
                 exec 6<&1
                 exec 1>>$LOGFILE 2>&1
-                unset VERSION
                 eval $options source ./$b.SlackBuild 
+
+                if [ $? -eq 0 ]; then
+                    echo "Successful build" >> $SUMMARY
+                else
+                    echo "Problem with build" >> $SUMMARY
+                fi
 
                 if [ "$INSTALL" = "1" ]; then
                     $UP $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
+                    if [ $? -eq 0 ]; then
+                        echo "Successful install" >> $SUMMARY
+                    else
+                        echo "Problem with install" >> $SUMMARY
+                    fi
+
                 fi
                 
+                unset VERSION BUILD
                 exec 1<&6 6<&-
             else
-                unset VERSION
                 eval $options source ./$b.SlackBuild 
+
+                if [ $? -eq 0 ]; then
+                    echo "Successful build" >> $SUMMARY
+                else
+                    echo "Problem with build" >> $SUMMARY
+                fi
 
                 if [ "$INSTALL" = "1" ]; then
                     $UP $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
+                    
+                    if [ $? -eq 0 ]; then
+                        echo "Successful install" >> $SUMMARY
+                    else
+                        echo "Problem with install" >> $SUMMARY
+                    fi
                 fi
-
+                unset VERSION BUILD
             fi
             )
             ERR=$?
 
             if [ "$ERR" != "0" ]; then
+                echo "Error" >> $SUMMARY
                 break
             fi
+
+            echo $SUMDIV >> $SUMMARY
         fi
     done
 
     if [ "$ERR" != "0" ]; then
         cleanupbad
     fi
+
+    echo "End of package list" >> $SUMMARY
+    echo $SUMDIV >> $SUMMARY
 
     cleanup
 }
