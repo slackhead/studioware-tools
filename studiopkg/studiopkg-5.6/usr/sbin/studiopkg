@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b26"
+    VERSION="5.6b27"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -142,6 +142,7 @@ getflags()
     contains "$CMD" -q && { get_queue $ARG; cleanup; }
     contains "$CMD" -h && { usage; cleanup; }
     contains "$CMD" -v && { echo $APPNAME $VERSION;unset LOG; cleanup; }
+    contains "$CMD" -n && { new_packages; cleanup; }
 
     unset LOG
     usage
@@ -168,7 +169,7 @@ $APPNAME --update, -u                      syncs with file server
 $APPNAME --upgrade <package>               upgrade package
 $APPNAME --upgrade-all                     upgrade all packages
 $APPNAME --queue, -q <package>             download and install queue
-$APPNAME --new                             download and install new packages
+$APPNAME --new, -n                         download and install new packages
 $APPNAME --latest, -l                      checks for latest version of $APPNAME
 $APPNAME --gpg, -g                         import the Studioware GPG key
 $APPNAME --help, -h                        help
@@ -178,7 +179,7 @@ Extra options:
 
 --no-gui    disables dialog and uses text input
 --yes       assumes yes to answers (also implies --no-gui)
---log       creates studiopkg.log in current directory
+--log       creates studiopkg.log in /tmp
 
 Files:
 
