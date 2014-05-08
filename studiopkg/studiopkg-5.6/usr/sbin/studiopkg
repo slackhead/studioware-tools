@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.6b27"
+    VERSION="5.6b28"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -142,7 +142,6 @@ getflags()
     contains "$CMD" -q && { get_queue $ARG; cleanup; }
     contains "$CMD" -h && { usage; cleanup; }
     contains "$CMD" -v && { echo $APPNAME $VERSION;unset LOG; cleanup; }
-    contains "$CMD" -n && { new_packages; cleanup; }
 
     unset LOG
     usage
