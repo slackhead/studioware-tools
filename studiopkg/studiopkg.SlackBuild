@@ -25,6 +25,7 @@ set -e
 
 PRGNAM=studiopkg
 
+rm -f *txz *md5 *asc
 DIR=$(ls -d1 $PRGNAM-* | head -n1)
 VERSION=$(grep VERSION= $DIR/usr/sbin/$PRGNAM | \
     cut -d\" -f2 | cut -db -f1 | head -n1)
@@ -34,7 +35,6 @@ BUILD=$(grep VERSION= $DIR/usr/sbin/$PRGNAM | \
 TAG=${TAG:-daw}
 ARCH=noarch
 
-rm -f *txz *md5 
 cd $PRGNAM-$VERSION
 /sbin/makepkg -l y -c n ../$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
 cd ..
