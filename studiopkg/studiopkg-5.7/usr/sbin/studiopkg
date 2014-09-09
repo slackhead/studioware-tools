@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="studiopkg"
-    VERSION="5.7b1"
+    VERSION="5.7b2"
     TMPROOT=$(mktemp -d -p /tmp $APPNAME-XXXXXX) || exit
     trap "cleanup" HUP INT ABRT QUIT SEGV TERM KILL PIPE STOP TSTP
   
@@ -364,15 +364,15 @@ get_queue()
                 ;;
         esac
     else
-        curl -fs $SBSERVER/$1.sqf > $QUEUE
+        curl -fs $SBSERVER/$1.queue > $QUEUE
         CAT=$(grep -i /$1.tar.gz$ $SLACKBUILDS | cut -d/ -f2-4)
         APP=$(echo $CAT | cut -d/ -f3)
 
         if [ -n "$CAT" ]; then
-            curl -fs $SBSERVER/$CAT/$APP.sqf > $QUEUE
+            curl -fs $SBSERVER/$APP.queue > $QUEUE
 
             if [ $? != 0 ]; then
-                echo "Queue $1.sqf not found."
+                echo "Queue $1.queue not found."
                 echo "Will try application directly."
                 local_queue "$@"
             fi
@@ -422,7 +422,8 @@ make_queue()
                     else
                         case $SUB in
                             'full'|'audio'|'video'|'photo'|'system')
-                                $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf 
+                                $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf \
+                                    || $WGET -O $SUB.sqf $SBSERVER/$SUB.queue
                                 ;;
                             *) 
                                 echo "Queue $SUB.sqf not found." 
