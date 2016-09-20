@@ -27,7 +27,7 @@ Files:
 /etc/sepkg/sepkg.conf
 This file contains the slackware version:
 
-SWVERSION=14.1
+SWVERSION=14.2
 
 Install options can be given on the command line or in a file:
 
