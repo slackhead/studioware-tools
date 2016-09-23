@@ -26,14 +26,14 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.4.1"
+    MYVERSION="4.4.2"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
     MAINURL="http://www.studioware.org"
     CONF=$CONFDIR/$APPNAME.conf
     touch $CONF
-    source $CONF 
+    source $CONF
     TMP=${TMP:-/tmp/se}
     OUTPUT=${OUTPUT:-/tmp}
     TMPROOT=$(mktemp -d -p $OUTPUT $APPNAME-XXXXXX) || exit
@@ -112,12 +112,12 @@ getflags()
     contains "$FLAGS" --no-gui && { NOGUI=1; FLAGS=${FLAGS/--no-gui}; }
     contains "$FLAGS" --log && { LOG="tee -a $LOGFILE"; FLAGS=${FLAGS/--log}; }
 
-    if [ -n "$LOG" ]; then    
+    if [ -n "$LOG" ]; then
         echo -n > $LOGFILE
         tail -f $LOGFILE &
         LOGPID=$!
     fi
-    
+
 
     CMD=$(echo $FLAGS | cut -d' ' -f1)
     ARG=$(echo $FLAGS | cut -d' ' -f2-)
@@ -149,7 +149,7 @@ getflags()
     contains "$CMD" -h && { usage; cleanup; }
     contains "$CMD" -v && { echo $APPNAME $MYVERSION; cleanup; }
     contains "$CMD" -g && { importgpg; cleanup; }
-    
+
     usage
     echo
     echo "Unknown command: $CMD"
@@ -229,7 +229,7 @@ upgrade_all()
 info()
 {
     APP=$1
-    
+
     if [ -z "$APP" ]; then
         echo "No application name specified!"
         cleanup
@@ -264,7 +264,7 @@ readme()
 latest()
 {
     cd $TMPROOT
-    
+
     wget -q $TOOLURL/LATEST || cleanup
     LATEST=$(cat LATEST)
     REMVERS=$(echo $LATEST | cut -db -f1)
@@ -278,9 +278,9 @@ latest()
 
         case "$REPLY" in
             'y'|'Y'|'')
-                PKG=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.txz
-                ASC=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.txz.asc
-                MD5=$APPNAME-$REMVERS-noarch-${REMBUILD}daw.md5
+                PKG=$APPNAME-$REMVERS-noarch-1daw.txz
+                ASC=$APPNAME-$REMVERS-noarch-1daw.txz.asc
+                MD5=$APPNAME-$REMVERS-noarch-1daw.md5
                 $WGET -q -O $PKG $TOOLURL/$PKG || cleanup
                 $WGET -q -O $MD5 $TOOLURL/$MD5 || cleanup
                 $WGET -q -O $ASC $TOOLURL/$ASC || cleanup
@@ -370,10 +370,10 @@ EOF
 #}}}
 #{{{ Update
 update()
-{   
+{
     cd $CACHEDIR || cleanup
-    $WGET -O SLACKBUILDS.TXT $SBSERVER/SLACKBUILDS.TXT 
-    $WGET -O VERSIONINFO.TXT $SBSERVER/VERSIONINFO.TXT 
+    $WGET -O SLACKBUILDS.TXT $SBSERVER/SLACKBUILDS.TXT
+    $WGET -O VERSIONINFO.TXT $SBSERVER/VERSIONINFO.TXT
     cleanup
 }
 #}}}
@@ -395,12 +395,12 @@ get_queue()
         *)
             CAT=$(grep -i /$1.tar.gz$ $FILELIST | cut -d/ -f2-4)
             APP=$(grep -i /$1.tar.gz$ $FILELIST | cut -d/ -f4)
-            curl -fs $SBSERVER/$CAT/$APP.sqf > $QUEUE 
+            curl -fs $SBSERVER/$CAT/$APP.sqf > $QUEUE
 
             if [ $? != 0 ]; then
                 if [ ! -r $CWD/$1 ] && [ ! -r $1 ]; then
-                    echo "Queue $1 not found."
-                    cleanup
+                    echo "Queue for $1 not found."
+                    echo $1 > $QUEUE
                 else
                     if [ -r "$CWD/$1" ]; then
                         cat $CWD/$1 > $QUEUE
@@ -428,7 +428,7 @@ set_queue()
     cl=$*
 
     if [ -z "$cl" ]; then
-        cat /dev/stdin | sed 's/,/\n/g;/^$/d' > $QUEUE 
+        cat /dev/stdin | sed 's/,/\n/g;/^$/d' > $QUEUE
     else
         echo $cl | sed 's/,/\n/g;/^$/d' > $QUEUE
     fi
@@ -452,7 +452,7 @@ make_queue()
 
         case "$line" in
             'audio'|'video'|'photo'|'full')
-                $WGET -O $line.sqf $SBSERVER/queues/$line.sqf 
+                $WGET -O $line.sqf $SBSERVER/queues/$line.sqf
                 SWAP=$(cat $line.sqf)
                 echo "$SWAP" >> $TMPQ
                 let CNT=$(wc -l $TMPQ | awk '{print $1}')+1
@@ -472,7 +472,7 @@ make_queue()
                             if [ -n "$CAT" ]; then
                                 $WGET -O $SUB.sqf $SBSERVER/$CAT/$SUB.sqf
                             else
-                                $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf 
+                                $WGET -O $SUB.sqf $SBSERVER/queues/$SUB.sqf
                                 if [ $? != 0 ]; then
                                     echo "$SUB.sqf not found."
                                     cleanup
@@ -540,7 +540,7 @@ do_dialog()
         if [ $YESNO -eq 0 ]; then
             echo "Install? (Y/n)"
             read
-            
+
             REPLY=$(echo $REPLY | tr 'a-z' 'A-Z')
             [[ "$REPLY" = "" ]] && REPLY="Y"
             [[ "$REPLY" = "Y" ]] && CHOICE=0 || cleanup
@@ -673,11 +673,11 @@ installpkgs()
         if [ -n "$i" ]; then
             b=$(basename $i .tar.gz)
             echo "Starting $b" >> $SUMMARY
-            $WGET -c -O $b.tar.gz $SBSERVER/$i 
+            $WGET -c -O $b.tar.gz $SBSERVER/$i
             tar xf $b.tar.gz
             (
             cd $b
-            source ./$b.info        
+            source ./$b.info
             let loop=0
             MD5SUM=($MD5SUM)
 
@@ -690,23 +690,23 @@ installpkgs()
                 while [ -z "$MD5MATCH" ]
                 do
                     if [ ! -r $CACHEDIR/$LOCAL ]; then
-                        $WGET -c -O $CACHEDIR/$LOCAL $D 
+                        $WGET -c -O $CACHEDIR/$LOCAL $D
                     fi
-                    
+
                     ln -sf $CACHEDIR/$LOCAL $LOCAL
 
-                    if [ "$(md5sum $LOCAL | awk '{print $1}')" != "$MD5" ]; then 
+                    if [ "$(md5sum $LOCAL | awk '{print $1}')" != "$MD5" ]; then
                         echo "Checksums don't match."
                         echo -n "(A)bort (C)ontinue (R)edownload "
                         echo "Bad MD5" >> $SUMMARY
                         read ANS
-                        if [[ "$ANS" = [rR] ]]; then 
+                        if [[ "$ANS" = [rR] ]]; then
                             rm -r $CACHEDIR/$LOCAL
                         elif [[ "$ANS" = [cC] ]]; then
                             break
                         else exit 1
                         fi
-                    else 
+                    else
                         MD5MATCH=1
                         echo "Good MD5" >> $SUMMARY
                     fi
@@ -718,14 +718,14 @@ installpkgs()
             echo -n "Starting $b SlackBuild " | $LOG
             [[ -n "$options" ]] && echo "with options:" | $LOG
             [[ -n "$options" ]] && echo -n "$options" | $LOG
-            
+
             echo | $LOG
             echo | $LOG
 
             if [ -n "$LOG" ]; then
                 exec 6<&1
                 exec 1>>$LOGFILE 2>&1
-                eval $options source ./$b.SlackBuild 
+                eval $options source ./$b.SlackBuild
 
                 if [ $? -eq 0 ]; then
                     echo "Successful build" >> $SUMMARY
@@ -742,11 +742,11 @@ installpkgs()
                     fi
 
                 fi
-                
+
                 unset VERSION BUILD
                 exec 1<&6 6<&-
             else
-                eval $options source ./$b.SlackBuild 
+                eval $options source ./$b.SlackBuild
 
                 if [ $? -eq 0 ]; then
                     echo "Successful build" >> $SUMMARY
@@ -756,7 +756,7 @@ installpkgs()
 
                 if [ "$INSTALL" = "1" ]; then
                     $UP $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
-                    
+
                     if [ $? -eq 0 ]; then
                         echo "Successful install" >> $SUMMARY
                     else
@@ -803,7 +803,7 @@ search()
             dir=$(echo $g | cut -d'/' -f2)
             installed=$(ls /var/log/packages/$shortname-[0-9]* 2>/dev/null)
 
-            if [ -e "$installed" ]; then 
+            if [ -e "$installed" ]; then
                 version=$(echo $installed | cut -d'/' -f5 | rev | cut -d- -f3 \
                     | rev)
                 echo "[Installed]	$dir/$(echo $installed | cut -d'/' -f5)"
@@ -832,8 +832,8 @@ importgpg()
 #{{{ Delete Cache !DANGER WILL ROBINSON!
 deletecache()
 {
-    rm -r $CACHEDIR 
-    mkdir -p $CACHEDIR 
+    rm -r $CACHEDIR
+    mkdir -p $CACHEDIR
     echo "Cache Deleted"
     cleanup
 }
