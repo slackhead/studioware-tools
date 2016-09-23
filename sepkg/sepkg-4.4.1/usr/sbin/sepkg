@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.4.0"
+    MYVERSION="4.4.1"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -363,7 +363,8 @@ Files:
 
 /etc/$APPNAME/$APPNAME.conf
 
-This file contains the mirror URL and should be edited for 32bit or 64bit.
+This file contains the slackware version SWVERSION.
+
 EOF
 }
 #}}}

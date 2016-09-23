@@ -30,7 +30,7 @@ VERSION=$(grep VERSION= $DIR/usr/sbin/$PRGNAM | \
     cut -d\" -f2 | cut -db -f1 | head -n1)
 BUILD=$(grep VERSION= $DIR/usr/sbin/$PRGNAM | \
     cut -d\" -f2 | cut -db -f2 | head -n1)
-
+BUILD=1
 #VERSION=${VERSION:-4.3}
 #BUILD=${BUILD:-1}
 TAG=${TAG:-daw}
@@ -43,4 +43,4 @@ cd ..
 md5sum $PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz} > \
 	$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.md5
 signstud
-echo ${VERSION}b$BUILD > LATEST
+echo $VERSION > LATEST
