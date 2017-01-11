@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.4.3"
+    MYVERSION="4.4.4"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -129,7 +129,7 @@ getflags()
     contains "$CMD" --search        && { search $ARG; cleanup; }
     contains "$CMD" --build         && { INSTALL=0; set_queue "$ARG"; cleanup; }
     contains "$CMD" --install       && { INSTALL=1; set_queue "$ARG"; cleanup; }
-    contains "$CMD" --upgrade-all   && { INSTALL=1; upgrade_all; cleanup; }
+    #contains "$CMD" --upgrade-all   && { INSTALL=1; upgrade_all; cleanup; }
     contains "$CMD" --new           && { INSTALL=1; new; cleanup; }
     contains "$CMD" --delete-cache  && { deletecache; cleanup; }
     contains "$CMD" --latest        && { latest; cleanup; }
@@ -344,7 +344,6 @@ $APPNAME --delete-cache                         delete all cached files
 $APPNAME --install, -i package1, package2 ...   build & install packages
 $APPNAME --install, -i < <queuefile>            install packages from file
 $APPNAME --new                                  checks for new packages
-$APPNAME --upgrade-all                          checks for updates to all packages
 $APPNAME --latest, -l                           checks for newer version of $APPNAME
 $APPNAME --read, -r <package>                   download and print readme (needs lynx)
 $APPNAME --search, -s <name>                    search for package name or part name

@@ -41,6 +41,6 @@ cd $PRGNAM-$VERSION
 /sbin/makepkg -l y -c n ../$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
 cd ..
 md5sum $PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz} > \
-	$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.md5
+    $PRGNAM-$VERSION-$ARCH-$BUILD$TAG.md5
 signstud
 echo $VERSION > LATEST
