@@ -9,7 +9,6 @@ sepkg --build, -b package1, package2, ... ....... build packages
 sepkg --install, -i package1, package2, ... ..... install packages
 sepkg --install, -i &lt; &lt;queuefile&gt; ............... install packages from file
 sepkg --new ..................................... check for new packages
-sepkg --upgrade-all ............................. check for updates
 sepkg --read, -r &lt;package&gt; ...................... download and print readme
 sepkg --delete-cache ............................ delete all cached packages
 sepkg --latest, -l .............................. check latest version and download/install
