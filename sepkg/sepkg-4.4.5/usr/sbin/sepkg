@@ -720,7 +720,7 @@ clear_installed()
         done
 
         if [ -z "$(ls /var/log/packages/$newpkg* 2>/dev/null)" ]; then
-            echo newpkg >> $QUEUE
+            echo $newpkg >> $QUEUE
         fi
 
     done < $QUEUE
