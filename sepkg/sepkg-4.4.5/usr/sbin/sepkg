@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.4.4"
+    MYVERSION="4.4.5"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -718,6 +718,11 @@ clear_installed()
                 sed -i "/$newpkg$/d" $QUEUE
             fi
         done
+
+        if [ -z "$(ls /var/log/packages/$newpkg* 2>/dev/null)" ]; then
+            echo newpkg >> $QUEUE
+        fi
+
     done < $QUEUE
 
     if [ $(wc -l $QUEUE | awk '{print $1}') = "0" ]; then
