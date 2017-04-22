@@ -26,7 +26,7 @@
 init()
 {
     APPNAME="sepkg"
-    MYVERSION="4.4.7"
+    MYVERSION="4.4.6"
     CWD=$(pwd)
     CONFDIR=/etc/$APPNAME
     mkdir -p $CONFDIR
@@ -46,7 +46,7 @@ init()
     SUMDIV="============================="
     WGET="wget --progress=dot:mega --no-check-certificate"
     UP="upgradepkg --reinstall --install-new"
-    TOOLURL="$MAINURL/$APPNAME"
+    TOOLURL="$MAINURL/files/tools/$APPNAME"
     SBSERVER="$MAINURL/files/slackbuilds/$SWVERSION"
     CACHEDIR=/var/cache/$APPNAME/$SWVERSION
     mkdir -p $CACHEDIR
