@@ -30,15 +30,15 @@ SWVERSION=14.2
 Install options can be given on the command line or in a file:
 
 Examples:
-# sepkg install ardour WIIMOTE=yes
+# sepkg --install ardour WIIMOTE=yes
 
 # cat queue
 ardour WIIMOTE=yes
-# sepkg install < queue
+# sepkg --install < queue
 
 With a queue file, seperate packages on newlines. When doing it via command separate packages with a comma:
 
-# sepkg install ardour WIIMOTE=yes, dssi, lash
+# sepkg --install ardour WIIMOTE=yes, dssi, lash
 
 Notes
 
